@@ -53,9 +53,8 @@ app:
   4. `/order-complete` shows a message indicating a successful order
 
 Our goal is to collect analytics on the payment form. Let's take a closer look
-at the `/payment` view, navigate there and open up the JavaScript console.
-> If you're using Google Chrome, you can access the JavaScript console by
-> right-clicking anywhere on the page and selecting `Inspect`.
+at the `/payment` view, navigate there and open up your browser's JavaScript
+console.
 
 Refresh the page, type a character into each input field, then click once
 on the disabled `Buy Now` button. Your form and console should look something
@@ -69,10 +68,10 @@ When you land on the page Redux fires a `ROUTE_CHANGED` action, then an action
 for each change to a form field, and finally an action when a user attempts to
 buy something but fails to proceed because of invalid form inputs.
 
-Revist the form, except this time fill it with valid inputs. Clicking the `Buy
-Now` button should take you to the `/order-complete` page. Notice how a Redux
-action fires whenever an input field updates, and notice how there is one last
-`ROUTE_CHANGED` action when you succesfully fill the form and move to the
+Revist the form, except this time fill it in with valid inputs. Clicking the
+`Buy Now` button should take you to the `/order-complete` page. Notice how a
+Redux action fires whenever an input field updates, and notice how there is one
+last `ROUTE_CHANGED` action when you succesfully fill the form and move to the
 `/order-complete` page.
 
 > **Checkstop.**
@@ -83,7 +82,34 @@ action fires whenever an input field updates, and notice how there is one last
 > * A Redux action fires when a user tries to submit invalid details
 > * A Redux action fires when a user sucessfully moves on to the /order-complete page
 
-----
+Now that we've had a look at the form, let's see how we can set up a report in
+Google Analytics to show the percentage of users that saw the form, filled it
+in, and successfully moved on to complete an order.
+
+Sign up for Google Analytics if you haven't already, and
+[create a new web property](https://support.google.com/analytics/answer/1008015?hl=en).
+Make a note of your property's [tracking Id](https://support.google.com/analytics/answer/1008080).
+
+Follow the instructions
+[here](https://support.google.com/analytics/answer/1032415?hl=en)
+to create a new _custom_ goal.
+
+* Enter in `Order Made` for the goal name.
+* Select `Destination` as the goal type.
+
+
+<p align="center">
+ <img src="http://localhost:6419/funnel-setup-ga.png">
+</p>
+
+
+<p align="center">
+ <img src="http://localhost:6419/superhero-redux-beacon.png">
+</p>
+
+```
+npm install --save redux-beacon
+```
 
 * Get a Google Analytics account if you don't have one
 * Create a new property
