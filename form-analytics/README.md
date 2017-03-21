@@ -114,17 +114,22 @@ expect the user to land on the `/payment` page. Then we expect the user to fill
 in each input field. We also expect that some users might mistakenly input
 invalid information and attempt to buy something anyway.
 
-> Explain Google Analytics and page views and stuff like that
-
 Notice anything strange? Funnel reports in Google Analytics expect that each
-step a user takes towards a goal is a new screen or page. Our app has a page for
-our first step `/payment` and our last step `/order-complete`. But the steps in
-between (steps 2-6 in the image), are all on the same page. So what we've done
-is we've made up pages for these steps. Now, all we need is a way to map Redux
-actions to page views in Google Analytics:
+step a user takes towards a goal is a whole new page. This is a remanent from
+the old days when single page apps weren't really a thing. Back then, whenever
+anything major changed in a website, there was a page load. Now, in modern apps
+like the one we're working on, we're using JavaScript to dynamically display
+different views, update the address bar, and manage the browser history. Our
+user might travel across different pages and fill in forms, but from Google
+Analytics's perspective nothing is happening. We need a way to _fake_ a page
+load when these things happen. Or more specifically, we need a way to map our
+app's Redux actions to Google Analytics page views.
+
+Based on the funnel report we set up, here's a map of Redux actions to the page
+loads we need to fake:
 
 ```
-Redux Action Type              Virtual Page
+Redux Action Type              Virtual Page Load
 -----------------              -----------------
 ROUTE_CHANGED                  /payment
 NAME_ENTERED                   /name-entered
@@ -145,14 +150,6 @@ ROUTE_CHANGED                  /order-complete
 npm install redux-beacon@0.2.x --save
 ```
 
-* Get a Google Analytics account if you don't have one
-* Create a new property
-* Create a new goal
-* Create a funnel for the goal
-* Destination
-* Add the routes to the funnel report
-* Explain the reasoning behind all the routes
-* Complication: Need to mape the Redux actions to GA page views
 
 * introduce redux beacon
 * set up redux beacon, follow instructions on the target docs page
@@ -168,6 +165,8 @@ npm install redux-beacon@0.2.x --save
 * last is to create an event definition for buy now attempted
 * You're done
 * create a factory for the event definitions that are similar
+
+### Offline Events
 
 * offline events explain the situation that it would be handy
 * require the redux beacon extensions offline web
