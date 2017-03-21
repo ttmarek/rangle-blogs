@@ -26,6 +26,11 @@ download the app, open up a terminal and run the following command:
 git clone git@github.com:rangle/analytics-sample-apps.git
 ```
 
+**Be Sure to Add in a tag**
+```
+git checkout tags/whatever
+```
+
 Once cloned, navigate to the `shopping-cart` directory and install the project's
 dependencies:
 
@@ -142,13 +147,36 @@ ROUTE_CHANGED                  /order-complete
 
 ### Redux Beacon
 
+If we want to use Google Analytics's funnel reporting feature, we need a way to
+map our app's Redux actions to Google Analytics page views. Like everything in
+life, there's an npm package for that,
+[Redux Beacon](https://www.npmjs.com/package/redux-beacon).
+
 <p align="center">
  <img src="http://localhost:6419/superhero-redux-beacon.png">
 </p>
 
+Add the Google Analytics tracking Id to our project site.
+
+Install the package by running the following command somewhere in your project directory.
 ```
 npm install redux-beacon@0.2.x --save
 ```
+
+Create a new file called `analytics.js` in `shopping/cart/src`
+
+First map the ROUTE_CHANGED actions to page views:
+
+```js
+
+```
+
+Then create the middleware, import the logger extension, import the GA target,
+see the extensions firing.
+
+Then map the NAME_ENTERED action to the page view
+
+see the logs, notice how an
 
 
 * introduce redux beacon
