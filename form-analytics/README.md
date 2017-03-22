@@ -17,6 +17,8 @@ form. You will learn:
  - How to map Redux actions to Google Analytics page views.
  - How to track analytics in environments with intermittent internet access.
 
+The tutorial assumes some prior exposure to Git, JavaScript (ES2015), and Redux.
+
 ### The App
 
 We'll be collecting analytics on the payment form of a simple ecommerce app. To
@@ -102,7 +104,7 @@ Make a note of your property's [tracking Id](https://support.google.com/analytic
 
 Follow the instructions
 [here](https://support.google.com/analytics/answer/1032415?hl=en)
-to create a new goal:
+to create a new goal.
   1. In Goal Setup, select `Custom`.
   2. In Goal Description, enter in `Order Made` for the goal name.
   3. In Goal Description, select `Destination` for the goal type.
@@ -116,7 +118,7 @@ Let's review. Our goal is to reach a _destination_, which is the
 `/order-complete` page. We set up a _funnel_ report that shows the six steps we
 expect the user to take before reaching the `/order-complete` page. We first
 expect the user to land on the `/payment` page. Then we expect the user to fill
-in each input field. We also expect that some users might mistakenly input
+in each input field. We also expect that some users might mistakenly put in
 invalid information and attempt to buy something anyway.
 
 Notice anything strange? Funnel reports in Google Analytics expect that each
@@ -145,39 +147,120 @@ BUY_NOW_ATTEMPTED              /buy-now-attempted
 ROUTE_CHANGED                  /order-complete
 ```
 
-### Redux Beacon
+Thankfully, there's an npm package to help us with this exact problem.
 
-If we want to use Google Analytics's funnel reporting feature, we need a way to
-map our app's Redux actions to Google Analytics page views. Like everything in
-life, there's an npm package for that,
-[Redux Beacon](https://www.npmjs.com/package/redux-beacon).
+### Redux Beacon
 
 <p align="center">
  <img src="http://localhost:6419/superhero-redux-beacon.png">
 </p>
 
-Add the Google Analytics tracking Id to our project site.
+[Redux Beacon](https://www.npmjs.com/package/redux-beacon) is a framework
+agnostic library for mapping Redux actions to analytics events. In this next
+part, we'll look at how we can leverage its API to solve our form analytics
+problem.
 
-Install the package by running the following command somewhere in your project directory.
+Let's start off by installing the library and saving it to our project's
+`package.json` file. Open a terminal, `cd` into the `shopping-cart` directory
+and run the following command:
+
 ```
 npm install redux-beacon@0.2.x --save
 ```
 
-Create a new file called `analytics.js` in `shopping/cart/src`
+Once that's done, follow the
+instructions [here](https://support.google.com/analytics/answer/1008080?hl=en)
+to add your Google Analytics tracking snippet to the
+`shopping-cart/public/index.html` file. This should be the same Google Analytics
+property we set up in the previous section. If the app is still running then
+saving the file should trigger a site rebuild and refresh the browser. Otherwise
+call `npm start` to get the site up and running again.
 
-First map the ROUTE_CHANGED actions to page views:
+At this point, you should see one active user in your Google
+Analytics [Real-Time](https://support.google.com/analytics/answer/1638635?hl=en)
+dashboard.
+
+Next, create a new file called `analytics.js` in `shopping-cart/src` and add the
+following code to it:
 
 ```js
+// shopping-cart/src/analytics.js
 
+import { createMiddleware } from 'redux-beacon';
+import { GoogleAnalytics } from 'redux-beacon/targets/google-analytics';
+import { logger } from 'redux-beacon/extensions/logger';
+
+const pageview = {
+  eventFields: action => ({
+    hitType: 'pageview',
+    page: action.payload,
+  }),
+};
+
+const eventsMap = {
+  ROUTE_CHANGED: pageview
+};
+
+export const middleware = createMiddleware(eventsMap, GoogleAnalytics, { logger });
 ```
 
-Then create the middleware, import the logger extension, import the GA target,
-see the extensions firing.
+#### &#x25BC; Deep Dive
 
-Then map the NAME_ENTERED action to the page view
+Let's go through this block by block. Feel free to skip this section if the API
+seems obvious to you.
 
-see the logs, notice how an
+```js
+import { createMiddleware } from 'redux-beacon';
+import { GoogleAnalytics } from 'redux-beacon/targets/google-analytics';
+import { logger } from 'redux-beacon/extensions/logger';
+```
 
+Here, we're importing various functions provided by Redux Beacon. The second and
+third imports are relative imports. Redux Beacon was built this way to help
+minimize bundle sizes.
+
+```js
+const pageview = {
+  eventFields: action => ({
+    hitType: 'pageview',
+    page: action.payload,
+  }),
+};
+```
+
+This block is called an _event definition_ in Redux Beacon lingo. It is a plain
+old JavaScript object (POJO) with one method `eventFields` that returns an event
+object. Redux Beacon will push the resulting event object to a given target
+(Google Analytics in our case).
+
+```js
+const eventsMap = {
+  ROUTE_CHANGED: pageview
+};
+```
+
+This block is called an _event definitions map_ in Redux Beacon lingo. This is
+where we link Redux actions to event definitions. In this case when the
+`ROUTE_CHANGED` action fires, Redux Beacon will call the `pageview`'s
+`eventFields` method, pass it the action object, then push the resulting event
+object to Google Analytics. Let's have a look at an example:
+
+ 1. The `{ type: 'ROUTE_CHANGED', payload: '/cart' }` action is dispatched
+ 2. Redux Beacon calls `pageview.eventFields` with the action
+ 3. The `eventFields` method returns `{ hitType: 'pageview' page: '/cart' }`
+ 4. Redux Beacon hits Google Analytics with a page view (`/cart`)
+
+```js
+export const middleware = createMiddleware(eventsMap, GoogleAnalytics, { logger });
+```
+
+This last line creates the Redux Beacon middleware that we're going to apply to
+the app's Redux store. We're first passing in the _event definitions map_,
+followed by the _target_ for the resulting events, and finishing off with a
+logging extension so we can see the anaylitcs events that Redux Beacon
+generates.
+
+#### &#x25B2; Deep Dive
 
 * introduce redux beacon
 * set up redux beacon, follow instructions on the target docs page
