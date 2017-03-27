@@ -1,21 +1,9 @@
-----
-
-* No gifs, make everything static
-* Angular vs React, Redux vs ngrx/store
-* Who is the source of the complication
-* Make it a tutorial
-* Nature? A manager? A BI member?
-* Google Analytics Funnel Report Back Filling
-
-----
-
 # Tracking Form Analytics With Redux and Google Analytics
 
 In this tutorial we're going to collect analytics on a Redux-powered user
 form. You will learn:
  - How to set up a destination funnel report in Google Analytics.
  - How to map Redux actions to Google Analytics page views.
- - How to track analytics in environments with intermittent internet access.
 
 The tutorial assumes some prior exposure to Git, JavaScript (ES2015), and Redux.
 
@@ -135,17 +123,17 @@ app's Redux actions to Google Analytics page views.
 Based on the funnel report we set up, here's a map of Redux actions to the page
 loads we need to fake:
 
-```
-Redux Action Type              Virtual Page Load
------------------              -----------------
-ROUTE_CHANGED                  /payment
-NAME_ENTERED                   /name-entered
-EMAIL_ENTERED                  /email-entered
-PHONE_NUMBER_ENTERED           /phone-number-entered
-CREDIT_CARD_NUMBER_ENTERED     /cc-number-entered
-BUY_NOW_ATTEMPTED              /buy-now-attempted
-ROUTE_CHANGED                  /order-complete
-```
+
+| Redux Action Type          |   Virtual Page Load      |
+| -----------------          |   -----------------      |
+| ROUTE_CHANGED              |   /payment               |
+| NAME_ENTERED               |   /name-entered          |
+| EMAIL_ENTERED              |   /email-entered         |
+| PHONE_NUMBER_ENTERED       |   /phone-number-entered  |
+| CREDIT_CARD_NUMBER_ENTERED |   /cc-number-entered     |
+| BUY_NOW_ATTEMPTED          |   /buy-now-attempted     |
+| ROUTE_CHANGED              |   /order-complete        |
+
 
 Thankfully, there's an npm package to help us with this exact problem.
 
@@ -168,13 +156,14 @@ and run the following command:
 npm install redux-beacon@0.2.x --save
 ```
 
-Once that's done, follow the
-instructions [here](https://support.google.com/analytics/answer/1008080?hl=en)
-to add your Google Analytics tracking snippet to the
-`shopping-cart/public/index.html` file. This should be the same Google Analytics
-property we set up in the previous section. If the app is still running then
-saving the file should trigger a site rebuild and refresh the browser. Otherwise
-call `npm start` to get the site up and running again.
+Once that's done, follow the instructions
+[here](https://support.google.com/analytics/answer/1008080?hl=en) to
+add your Google Analytics tracking snippet to the
+`shopping-cart/public/index.html` file. This should be the same Google
+Analytics property we set up in the previous section. If the app is
+still running then saving the file should trigger a site
+rebuild. Otherwise, call `npm start` to get the site up and running
+again.
 
 At this point, you should see one active user in your Google
 Analytics [Real-Time](https://support.google.com/analytics/answer/1638635?hl=en)
@@ -228,10 +217,10 @@ const pageview = {
 };
 ```
 
-This block is called an _event definition_ in Redux Beacon lingo. It is a plain
-old JavaScript object (POJO) with one method `eventFields` that returns an event
-object. Redux Beacon will push the resulting event object to a given target
-(Google Analytics in our case).
+This block is called an _event definition_ in Redux Beacon lingo. It
+is a plain old JavaScript object (POJO) with a special `eventFields`
+method. The object returned by the `eventFields` method is the
+analytics event that Redux Beacon will push to a target.
 
 ```js
 const eventsMap = {
@@ -245,7 +234,7 @@ where we link Redux actions to event definitions. In this case when the
 `eventFields` method, pass it the action object, then push the resulting event
 object to Google Analytics. Let's have a look at an example:
 
- 1. The `{ type: 'ROUTE_CHANGED', payload: '/cart' }` action is dispatched
+ 1. The app dispatches the `{ type: 'ROUTE_CHANGED', payload: '/cart' }` action
  2. Redux Beacon calls `pageview.eventFields` with the action
  3. The `eventFields` method returns `{ hitType: 'pageview' page: '/cart' }`
  4. Redux Beacon hits Google Analytics with a page view (`/cart`)
@@ -262,27 +251,145 @@ generates.
 
 #### &#x25B2; Deep Dive
 
-* introduce redux beacon
-* set up redux beacon, follow instructions on the target docs page
-* set up the redux beacon logger
-* create an event definitions map for landing on the payment page
-* see the console log
-* create an event definitions map for the entering in a name
-* see the console log
-* notice that you're firing an event whenever the name field gets updated
-* explain why this is a bad thing and how the funnel report will look
-* create an eventSchema so only one event gets fired
-* create event definitions for the rest of the form fields
-* last is to create an event definition for buy now attempted
-* You're done
-* create a factory for the event definitions that are similar
+Now that we have Redux Beacon set up all we have to do is apply the
+middleware when creating the Redux store. Add the following line to
+the top of the `src/App.js` file.
 
-### Offline Events
+```js
+// src/App.js (somewhere near the top of the file)
+import { middleware as analyticsMiddleware } from './analytics';
+```
 
-* offline events explain the situation that it would be handy
-* require the redux beacon extensions offline web
-* set up the extension
-* open the app, then go offline, fill out the form, then go back online
-* Ta Da! analytics tracking when offline
+Then, scroll down to were `createStore` is being called, and apply the
+middleware.
 
-* One approach to use Redux Beacon to track form analytics
+```js
+// src/App.js (should be around line 35)
+const store = createStore(
+  reducer,
+  applyMiddleware(createLogger(), analyticsMiddleware)
+);
+```
+
+nSave the file, then mozy over to your browser and refresh the shopping
+cart app. Navigate from the root page to the cart page then to the
+payment page. Have a look at the console. Like before, you should see
+Redux actions for each route change, but now, you should also be
+seeing the associated analytics events above each Redux action.
+
+Go back to the Real-Time view in Google Analytics, this time, look at
+the `Behaviour` view, and click on `Pageviews (last 30min)`. You
+should see `/`, `/cart`, and `/payment` listed along with the number
+of times each route was visited.
+
+<p align="center">
+ <img src="http://localhost:6419/tada.png">
+</p>
+
+With one simple event definition we have managed to map every
+`ROUTE_CHANGED` action to a Google Analytics page hit. This includes
+the two page hits we need to record for our funnel report (`/payment`,
+and `/order-complete`).
+
+| Redux Action Type          |   Virtual Page Load      |
+| -----------------          |   -----------------      |
+| ~~ROUTE_CHANGED~~          |   ~~/payment~~           |
+| NAME_ENTERED               |   /name-entered          |
+| EMAIL_ENTERED              |   /email-entered         |
+| PHONE_NUMBER_ENTERED       |   /phone-number-entered  |
+| CREDIT_CARD_NUMBER_ENTERED |   /cc-number-entered     |
+| BUY_NOW_ATTEMPTED          |   /buy-now-attempted     |
+| ~~ROUTE_CHANGED~~          |   ~~/order-complete~~    |
+
+To track the remaining page views needed for the funnel report we need
+to create an event definition for the each form field Redux actions,
+and an event definition for when users try to submit the form with
+invalid inputs.
+
+In `src/analytics.js` add the following function below the `pageview`
+event definition.
+
+```js
+function createPageview(route) {
+  return {
+    eventFields: () => ({
+      hitType: 'pageview',
+      page: route,
+    }),
+  };
+}
+```
+
+This is a factory that when given a route returns an event definition
+for an associated Google Analytics page hit.
+
+Next, update the `eventsMap` as follows.
+
+```js
+const eventsMap = {
+  ROUTE_CHANGED: pageview,
+  NAME_ENTERED: createPageview('/name-entered'),
+  EMAIL_ENTERED: createPageview('/email-entered'),
+  PHONE_NUMBER_ENTERED: createPageview('/phone-number-entered'),
+  CREDIT_CARD_NUMBER_ENTERED: createPageview('/cc-number-entered'),
+};
+```
+
+Here we're using the `createPageview` factory to create an event
+definition for each input field event.
+
+Go back to your browser, navigate to the `/payment` page in the app
+and fill in the form. You should now see analytics events being logged
+to the console whenever the values of the input fields change. This is
+what we wanted right? Yes, and no. We wanted to fake a page view
+whenever a user entered something into a form field. But, with our
+current set up, we are hitting Google Analytics with page views
+whenever the user types something into a given form field. So if the
+user enters in `John` in the name field, we are hitting Google
+Analytics with four hits to `/name-entered`, when we only need to send
+one.
+
+Redux Beacon's event definitions have one other property that can help
+us with this problem. Update the `createPageview` factory as follows.
+
+```js
+function createPageview(fieldName, route) {
+  return {
+    eventFields: (action, prevState) => ({
+      hitType: 'pageview',
+      page: prevState[fieldName].length === 0 ? route : '',
+    }),
+    eventSchema: {
+      page: value => value === route,
+    },
+  };
+}
+```
+
+explain eventSchema
+And update the eventsMap as follows.
+
+```js
+const eventsMap = {
+  ROUTE_CHANGED: pageview,
+  NAME_ENTERED: createPageview('name', '/name-entered'),
+  EMAIL_ENTERED: createPageview('email', '/email-entered'),
+  PHONE_NUMBER_ENTERED: createPageview('phoneNumber', '/phone-number-entered'),
+  CREDIT_CARD_NUMBER_ENTERED: createPageview('ccNumber', '/cc-number-entered'),
+};
+```
+
+last finish off
+
+```js
+const eventsMap = {
+  ROUTE_CHANGED: pageview,
+  NAME_ENTERED: createPageview('name', '/name-entered'),
+  EMAIL_ENTERED: createPageview('email', '/email-entered'),
+  PHONE_NUMBER_ENTERED: createPageview('phoneNumber', '/phone-number-entered'),
+  CREDIT_CARD_NUMBER_ENTERED: createPageview('ccNumber', '/cc-number-entered'),
+  BUY_NOW_ATTEMPTED: {
+    eventFields: () => ({ hitType: 'pageview', page: '/buy-now-attempt' })
+  }
+};
+```
