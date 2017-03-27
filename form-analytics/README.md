@@ -34,7 +34,7 @@ Then run:
 npm install
 ```
 <p align="center">
- <img src="http://localhost:6419/one-eternity-later.jpg" width="300">
+ <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/one-eternity-later.jpg" width="300">
 </p>
 
 Once npm has finished installing the app's dependencies, start the app with the
@@ -60,7 +60,7 @@ disabled `Buy Now` button. Your form and console should look something like
 this now:
 
 <p align="center">
- <img src="http://localhost:6419/payment-form-redux-actions.png">
+ <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/payment-form-redux-actions.png">
 </p>
 
 When you land on the page Redux fires a `ROUTE_CHANGED` action, then an action
@@ -96,7 +96,7 @@ to create a new goal.
   4. Lastly, fill in Goal Details to match the following image then click `Save`.
 
 <p align="center">
- <img src="http://localhost:6419/funnel-setup-ga.png" width="700">
+ <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/funnel-setup-ga.png" width="700">
 </p>
 
 Let's review. Our goal is to reach a _destination_, which is the
@@ -137,7 +137,7 @@ Thankfully, there's an npm package to help us with this exact problem.
 ### Redux Beacon
 
 <p align="center">
- <img src="http://localhost:6419/superhero-redux-beacon.png">
+ <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/superhero-redux-beacon.png">
 </p>
 
 [Redux Beacon](https://www.npmjs.com/package/redux-beacon) is a framework
@@ -273,7 +273,7 @@ Go back to the Real-Time view in Google Analytics, this time select the
 visited.
 
 <p align="center">
- <img src="http://localhost:6419/tada.png">
+ <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/tada.png">
 </p>
 
 With one simple event definition we managed to map every `ROUTE_CHANGED` action
@@ -434,5 +434,5 @@ Lets review what we've achieved:
  - We learned how to validate analytics events before sending them to Google Analytics.
 
 <p align="center">
- <img src="http://localhost:6419/thats-all-folks.jpg" width="300">
+ <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/thats-all-folks.jpg" width="300">
 </p>
