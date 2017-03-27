@@ -1,27 +1,29 @@
-# Tracking Form Analytics With Redux and Google Analytics
+# Tracking Form Analytics With Redux
 
 In this tutorial we're going to collect analytics on a Redux-powered user
 form. You will learn:
- - How to set up a destination funnel report in Google Analytics.
- - How to map Redux actions to Google Analytics page views.
+ - How to measure user drop off in forms using Google Analytics.
+ - How to create a destination funnel report in Google Analytics.
+ - How to map Redux actions to Google Analytics events and page views.
 
-The tutorial assumes some prior exposure to Git, JavaScript (ES2015), and Redux.
+This tutorial assumes prior exposure to Git, JavaScript (ES2015), and Redux.
 
 ### The App
 
 We'll be collecting analytics on the payment form of a simple ecommerce app. To
-download the app, open up a terminal and run the following command:
+download the app, open a terminal and run the following command:
 
 ```
 git clone git@github.com:rangle/analytics-sample-apps.git
 ```
 
-**Be Sure to Add in a tag**
+Then run:
+
 ```
-git checkout tags/whatever
+git checkout tags/v1.0.0
 ```
 
-Once cloned, navigate to the `shopping-cart` directory and install the project's
+Once that's done, navigate to the `shopping-cart` directory and install the project's
 dependencies:
 
 ```
@@ -66,23 +68,18 @@ for each form field change, and finally an action when a user attempts to
 buy something but fails to proceed because of invalid form inputs.
 
 Update the form with valid inputs this time. None of the form fields should have
-a red outline, and the `Buy Now` button should be enabled. Once finished, click
-the `Buy Now` button. Notice how a Redux action fired whenever an input field
-changed, and notice how there is one last `ROUTE_CHANGED` action when you
-succesfully filled the form, clicked the `Buy Now` button, and moved to the
-`/order-complete` page.
+a red outline and the `Buy Now` button should be enabled. Click the `Buy Now`
+button. Notice how a Redux action fired whenever an input field changed, and
+notice how there is one last `ROUTE_CHANGED` action when you succesfully filled
+the form.
 
-> **Checkstop.**
 > Here's all you need to remember at this point:
 > * Our goal is to collect analytics on the payment form
-> * A Redux action fires when the user sees the payment form
-> * A Redux action fires whenever one of the form fields change
-> * A Redux action fires when a user tries to submit invalid details
-> * A Redux action fires when a user sucessfully moves on to the /order-complete page
+> * Redux actions fire when the route changes and when the user types something into the form fields
 
 ### Setting Up Google Analytics
 
-Now that we've had a look at the form, let's see how we can set up a report in
+Now that we've had a look at the form let's see how we can set up a report in
 Google Analytics to show the percentage of users that saw the form, filled it
 in, and successfully completed an order.
 
@@ -106,19 +103,19 @@ Let's review. Our goal is to reach a _destination_, which is the
 `/order-complete` page. We set up a _funnel_ report that shows the six steps we
 expect the user to take before reaching the `/order-complete` page. We first
 expect the user to land on the `/payment` page. Then we expect the user to fill
-in each input field. We also expect that some users might mistakenly put in
-invalid information and attempt to buy something anyway.
+in each input field. We also expect some users might attempt to submit the
+payment form with invalid inputs.
 
-Notice anything strange? Funnel reports in Google Analytics expect that each
-step a user takes towards a goal is a whole new page. This is a remanent from
-the old days when single page apps weren't really a thing. Back then, whenever
-anything major changed in a website, there was a page load. Now, in modern apps
-like the one we're working on, we're using JavaScript to dynamically display
-different views, update the address bar, and manage the browser history. Our
-user might travel across different pages and fill in forms, but from Google
-Analytics's perspective nothing is happening. We need a way to _fake_ a page
-load when these things happen. Or more specifically, we need a way to map our
-app's Redux actions to Google Analytics page views.
+Notice anything strange? Funnel reports in Google Analytics expect each step a
+user takes towards a goal is a whole new page. This is a remanent from the old
+days when single page apps weren't really a thing. Back then, whenever anything
+major changed in a website, there was a page load. Now, in modern apps like the
+one we're working on, we're using JavaScript to dynamically display different
+views, update the address bar, and manage the browser history. Our user might
+travel across different pages and fill in forms, but from Google Analytics's
+perspective nothing is happening. We need a way to _fake_ a page load when these
+things happen. Or more specifically, we need a way to map our app's Redux
+actions to Google Analytics page views.
 
 Based on the funnel report we set up, here's a map of Redux actions to the page
 loads we need to fake:
@@ -193,10 +190,7 @@ const eventsMap = {
 export const middleware = createMiddleware(eventsMap, GoogleAnalytics, { logger });
 ```
 
-#### &#x25BC; Deep Dive
-
-Let's go through this block by block. Feel free to skip this section if the API
-seems obvious to you.
+Let's go through this block by block.
 
 ```js
 import { createMiddleware } from 'redux-beacon';
@@ -249,19 +243,15 @@ followed by the _target_ for the resulting events, and finishing off with a
 logging extension so we can see the anaylitcs events that Redux Beacon
 generates.
 
-#### &#x25B2; Deep Dive
-
-Now that we have Redux Beacon set up all we have to do is apply the
-middleware when creating the Redux store. Add the following line to
-the top of the `src/App.js` file.
+Now that we have Redux Beacon set up all we have to do is apply the middleware
+when creating the Redux store. Add the following line to the `src/App.js` file.
 
 ```js
 // src/App.js (somewhere near the top of the file)
 import { middleware as analyticsMiddleware } from './analytics';
 ```
 
-Then, scroll down to were `createStore` is being called, and apply the
-middleware.
+Then, scroll down to where `createStore` is called and apply the middleware.
 
 ```js
 // src/App.js (should be around line 35)
@@ -271,25 +261,24 @@ const store = createStore(
 );
 ```
 
-nSave the file, then mozy over to your browser and refresh the shopping
-cart app. Navigate from the root page to the cart page then to the
-payment page. Have a look at the console. Like before, you should see
-Redux actions for each route change, but now, you should also be
-seeing the associated analytics events above each Redux action.
+Save the file, then mozy over to your browser and refresh the shopping cart
+app. Navigate from the root page to the cart page then to the payment page. Have
+a look at the console. Like before, you should see Redux actions for each route
+change, but now you should also see the associated analytics events above each
+Redux action.
 
-Go back to the Real-Time view in Google Analytics, this time, look at
-the `Behaviour` view, and click on `Pageviews (last 30min)`. You
-should see `/`, `/cart`, and `/payment` listed along with the number
-of times each route was visited.
+Go back to the Real-Time view in Google Analytics, this time select the
+`Behaviour` tab and click on `Pageviews (last 30min)`. You should see `/`,
+`/cart`, and `/payment` listed along with the number of times each route was
+visited.
 
 <p align="center">
  <img src="http://localhost:6419/tada.png">
 </p>
 
-With one simple event definition we have managed to map every
-`ROUTE_CHANGED` action to a Google Analytics page hit. This includes
-the two page hits we need to record for our funnel report (`/payment`,
-and `/order-complete`).
+With one simple event definition we managed to map every `ROUTE_CHANGED` action
+to a Google Analytics page hit. This includes the two page hits we need for our
+funnel report.
 
 | Redux Action Type          |   Virtual Page Load      |
 | -----------------          |   -----------------      |
@@ -302,8 +291,8 @@ and `/order-complete`).
 | ~~ROUTE_CHANGED~~          |   ~~/order-complete~~    |
 
 To track the remaining page views needed for the funnel report we need
-to create an event definition for the each form field Redux actions,
-and an event definition for when users try to submit the form with
+to create an event definition for the each form field Redux action,
+and lastly an event definition for when users try to submit the form with
 invalid inputs.
 
 In `src/analytics.js` add the following function below the `pageview`
@@ -320,10 +309,10 @@ function createPageview(route) {
 }
 ```
 
-This is a factory that when given a route returns an event definition
-for an associated Google Analytics page hit.
+This factory function returns an event definition for a Google Analytics page
+hit.
 
-Next, update the `eventsMap` as follows.
+Next, update the `eventsMap` to include the form field Redux actions.
 
 ```js
 const eventsMap = {
@@ -338,19 +327,17 @@ const eventsMap = {
 Here we're using the `createPageview` factory to create an event
 definition for each input field event.
 
-Go back to your browser, navigate to the `/payment` page in the app
-and fill in the form. You should now see analytics events being logged
-to the console whenever the values of the input fields change. This is
-what we wanted right? Yes, and no. We wanted to fake a page view
-whenever a user entered something into a form field. But, with our
-current set up, we are hitting Google Analytics with page views
-whenever the user types something into a given form field. So if the
-user enters in `John` in the name field, we are hitting Google
-Analytics with four hits to `/name-entered`, when we only need to send
-one.
+Go back to your browser, navigate to the app's `/payment` page and fill in the
+form. You should see analytics events being logged to the console whenever the
+form fields change. This is what we wanted right? Yes and no. We wanted to hit
+Google Analytics with a page view when a user enters their name, email, phone
+number, or credit card number. But with our current set up, we are hitting
+Google Analytics with page views each time the user adds a _single_ character to
+each form field. So if the user enters `John` in the name field, Google
+Analytics records four hits to `/name-entered` instead of one.
 
-Redux Beacon's event definitions have one other property that can help
-us with this problem. Update the `createPageview` factory as follows.
+Redux Beacon's event definitions have a property that can help us with this
+problem. Update the `createPageview` factory in `src/analytics.js` as follows.
 
 ```js
 function createPageview(fieldName, route) {
@@ -366,8 +353,18 @@ function createPageview(fieldName, route) {
 }
 ```
 
-explain eventSchema
-And update the eventsMap as follows.
+We updated the event definition returned by `createPageView` with a new
+property: `eventSchema`. This is a special property for validating event objects
+returned by `eventFields`. Here our `eventSchema` expects the event object to
+have a `page` key whose value is equal to the route. If the value is not equal
+to the route then Redux Beacon won't push anything to Google Analytics. Now look
+at the changes made to the `eventFields` method, you will notice a new
+conditional that ensures the `page` property will only match the route when the
+form field's value is first being filled. That is, if the previous state of the
+form field is empty (it's length equals zero) then the page property is set to
+the route, otherwise the page property is set to an empty string.
+
+Update the `eventsMap` to use the revised event definition factory.
 
 ```js
 const eventsMap = {
@@ -379,7 +376,28 @@ const eventsMap = {
 };
 ```
 
-last finish off
+Save the file, head on over to your browser, refresh the app, and navigate to
+the payment form. Did it work? Before, Redux Beacon would hit Google Analytics
+with a page view each time a form field's value changed. Now, Redux Beacon only
+sends one page hit per form field.
+
+| Redux Action Type              |   Virtual Page Load          |
+| -----------------              |   -----------------          |
+| ~~ROUTE_CHANGED~~              |   ~~/payment~~               |
+| ~~NAME_ENTERED~~               |   ~~/name-entered~~          |
+| ~~EMAIL_ENTERED~~              |   ~~/email-entered~~         |
+| ~~PHONE_NUMBER_ENTERED~~       |   ~~/phone-number-entered~~  |
+| ~~CREDIT_CARD_NUMBER_ENTERED~~ |   ~~/cc-number-entered~~     |
+| BUY_NOW_ATTEMPTED              |   /buy-now-attempted         |
+| ~~ROUTE_CHANGED~~              |   ~~/order-complete~~        |
+
+Almost done! There's one more event we need to capture before we can call it a
+day. We are tracking each route change, we are tracking the number of times a
+user fills in their name, email, phone number, and credit card number. Now we
+need to track the number of times a user tries to submit the payment form with
+invalid inputs.
+
+Update the `eventsMap` as follows.
 
 ```js
 const eventsMap = {
@@ -393,3 +411,28 @@ const eventsMap = {
   }
 };
 ```
+
+| Redux Action Type              |   Virtual Page Load          |
+| -----------------              |   -----------------          |
+| ~~ROUTE_CHANGED~~              |   ~~/payment~~               |
+| ~~NAME_ENTERED~~               |   ~~/name-entered~~          |
+| ~~EMAIL_ENTERED~~              |   ~~/email-entered~~         |
+| ~~PHONE_NUMBER_ENTERED~~       |   ~~/phone-number-entered~~  |
+| ~~CREDIT_CARD_NUMBER_ENTERED~~ |   ~~/cc-number-entered~~     |
+| ~~BUY_NOW_ATTEMPTED~~          |   ~~/buy-now-attempted~~     |
+| ~~ROUTE_CHANGED~~              |   ~~/order-complete~~        |
+
+
+That's it! We mapped all the Redux actions required for the form's funnel
+report! Now, you should recieve all the data required to fill the
+**Conversions > Goals > Funnel Visualization** report in Google Analytics.
+
+Lets review what we've achieved:
+ - We learned how to create a destination funnel report in Google Analytics.
+ - We learned that Google Analytics expects most site changes to be triggered by page loads.
+ - We learned how to use Redux Beacon to map Redux actions to analytics events.
+ - We learned how to validate analytics events before sending them to Google Analytics.
+
+<p align="center">
+ <img src="http://localhost:6419/thats-all-folks.jpg" width="300">
+</p>
