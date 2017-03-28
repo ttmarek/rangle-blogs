@@ -17,22 +17,21 @@ download the app, open a terminal and run the following command:
 git clone git@github.com:rangle/analytics-sample-apps.git
 ```
 
-Then run:
+Then navigate into the cloned directory and checkout `v1.0.0`:
 
 ```
+cd analytics-sample-apps
 git checkout tags/v1.0.0
 ```
 
-Once that's done, navigate to the `shopping-cart` directory and install the project's
+Now, navigate to the `shopping-cart` directory and install the project's
 dependencies:
 
 ```
-cd analytics-sample-apps/shopping-cart
-```
-Then run:
-```
+cd shopping-cart
 npm install
 ```
+
 <p align="center">
  <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/one-eternity-later.jpg" width="300">
 </p>
@@ -44,7 +43,7 @@ following command:
 npm start
 ```
 
-The app should open up in your browser at the following address:
+The app should open in your browser at the following address:
 `http://localhost:3000/`. Take a minute or two to play around and explore the
 app:
   1. `/` shows a list of items to buy
@@ -53,11 +52,11 @@ app:
   4. `/order-complete` shows a message indicating a successful order
 
 Our goal is to collect analytics on the payment form. Navigate to the `/payment`
-view and open up your browser's JavaScript console.
+view and open your browser's JavaScript console.
 
 Refresh the page, type a character into each input field, then click the
 disabled `Buy Now` button. Your form and console should look something like
-this now:
+this:
 
 <p align="center">
  <img src="https://github.com/ttmarek/rangle-blogs/blob/ae9de9b8ff326a15328c27538b0566793b8725a5/form-analytics/payment-form-redux-actions.png">
@@ -65,7 +64,7 @@ this now:
 
 When you land on the page Redux fires a `ROUTE_CHANGED` action, then an action
 for each form field change, and finally an action when a user attempts to
-buy something but fails to proceed because of invalid form inputs.
+buy something but fails to proceed because of invalid inputs.
 
 Update the form with valid inputs this time. None of the form fields should have
 a red outline and the `Buy Now` button should be enabled. Click the `Buy Now`
@@ -91,7 +90,7 @@ Follow the instructions
 [here](https://support.google.com/analytics/answer/1032415?hl=en)
 to create a new goal.
   1. In Goal Setup, select `Custom`.
-  2. In Goal Description, enter in `Order Made` for the goal name.
+  2. In Goal Description, enter in `Payment Form Filled` for the goal name.
   3. In Goal Description, select `Destination` for the goal type.
   4. Lastly, fill in Goal Details to match the following image then click `Save`.
 
@@ -397,7 +396,8 @@ user fills in their name, email, phone number, and credit card number. Now we
 need to track the number of times a user tries to submit the payment form with
 invalid inputs.
 
-Update the `eventsMap` as follows.
+Update the `eventsMap` with an event definition for the `BUY_NOW_ATTEMPTED`
+action.
 
 ```js
 const eventsMap = {
@@ -424,8 +424,15 @@ const eventsMap = {
 
 
 That's it! We mapped all the Redux actions required for the form's funnel
-report! Now, you should recieve all the data required to fill the
-**Conversions > Goals > Funnel Visualization** report in Google Analytics.
+report! Now, Google Analytics should recieve all the data required to fill the
+**Conversions> Goals > Funnel Visualization** report. It's worth mentioning that
+the funnel visualization report is not real-time, so it might take a few hours
+before you start seeing any data. Until then, here's a teaser as to what it
+might eventually look like:
+
+<p align="center">
+ <img src="http://localhost:6419/funnel-report.png">
+</p>
 
 Lets review what we've achieved:
  - We learned how to create a destination funnel report in Google Analytics.
