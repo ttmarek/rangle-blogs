@@ -431,7 +431,7 @@ before you start seeing any data. Until then, here's a teaser as to what it
 might eventually look like:
 
 <p align="center">
- <img src="http://localhost:6419/funnel-report.png">
+ <img src="https://github.com/ttmarek/rangle-blogs/blob/96deeac4aa4e869c4b104ab46ec70bafe9ff0095/form-analytics/funnel-report.png">
 </p>
 
 Lets review what we've achieved:
