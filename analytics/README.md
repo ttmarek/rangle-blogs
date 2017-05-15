@@ -14,3 +14,4 @@ Notes:
    detail as adding any other JavaScript
  - what about SSR?
  - what about code splitting?
+ - building out a feature not worth tracking? A means of prioritization.
