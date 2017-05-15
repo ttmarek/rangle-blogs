@@ -1,5 +1,8 @@
 # Analytics in the Age of JavaScript
 
+Pitch:
+Implementing analytics in SPAs is hard, Redux and global state makes it easier.
+
 Notes:
  - traditional sites, every change is a page load
  - most analytics services are build for traditional sites
@@ -15,3 +18,5 @@ Notes:
  - what about SSR?
  - what about code splitting?
  - building out a feature not worth tracking? A means of prioritization.
+ - if its not worth tracking is it even worth building?
+
