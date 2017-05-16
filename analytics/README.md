@@ -1,5 +1,10 @@
 # Analytics in the Age of JavaScript
 
+Goals:
+ - something to add to redux-beacon's readme under "motivation"
+ - something to send to people wondering what problems redux-beacon solves
+ - something to generate leads...companies migrating to a SPA that wants the same analytics they had
+ 
 Pitch:
 Implementing analytics in SPAs is hard, Redux and global state makes it easier.
 
@@ -19,4 +24,5 @@ Notes:
  - what about code splitting?
  - building out a feature not worth tracking? A means of prioritization.
  - if its not worth tracking is it even worth building?
+ - "legacy page-by-page approach"
 
