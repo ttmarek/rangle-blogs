@@ -25,4 +25,6 @@ Notes:
  - building out a feature not worth tracking? A means of prioritization.
  - if its not worth tracking is it even worth building?
  - "legacy page-by-page approach"
+ - https://www.stavros.io/posts/scourge-web-analytics/
+ - server-side (logs) vs client side analytics
 
