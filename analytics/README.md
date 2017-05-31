@@ -27,4 +27,5 @@ Notes:
  - "legacy page-by-page approach"
  - https://www.stavros.io/posts/scourge-web-analytics/
  - server-side (logs) vs client side analytics
+ - tracking blockers, something to worry about?
 
